@@ -97,9 +97,21 @@ final class HealthKitManager {
     }
 
     private func locations(of route: HKWorkoutRoute) async throws -> [CLLocation] {
-        final class Accumulator {
-            var locations: [CLLocation] = []
-            var finished = false
+        /// Collecte les points reçus par lots ; protégé par un verrou car HealthKit rappelle depuis un autre fil.
+        final class Accumulator: @unchecked Sendable {
+            private let lock = NSLock()
+            private var _locations: [CLLocation] = []
+            private var _finished = false
+
+            var finished: Bool {
+                get { lock.withLock { _finished } }
+                set { lock.withLock { _finished = newValue } }
+            }
+
+            var locations: [CLLocation] {
+                get { lock.withLock { _locations } }
+                set { lock.withLock { _locations = newValue } }
+            }
         }
         let store = self.store
         let accumulator = Accumulator()
