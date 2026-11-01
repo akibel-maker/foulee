@@ -20,9 +20,9 @@ struct RootView: View {
             StatsView()
                 .tabItem { Label("Progression", systemImage: "chart.line.uptrend.xyaxis") }
                 .tag(AppTab.stats)
-            SleepView()
-                .tabItem { Label("Sommeil", systemImage: "bed.double") }
-                .tag(AppTab.sleep)
+            DailyView()
+                .tabItem { Label("Quotidien", systemImage: "checklist") }
+                .tag(AppTab.daily)
         }
         .environment(appState)
         .environment(tracker)

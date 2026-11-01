@@ -7,6 +7,6 @@ struct RunTrackerApp: App {
         WindowGroup {
             RootView()
         }
-        .modelContainer(for: [Run.self, Goal.self])
+        .modelContainer(for: [Run.self, Goal.self, Habit.self])
     }
 }

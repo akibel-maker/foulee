@@ -23,8 +23,7 @@ struct SleepView: View {
     private var goalSeconds: TimeInterval { sleepGoalHours * 3600 }
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
+        ScrollView {
                 VStack(spacing: 20) {
                     if sleep.nights.isEmpty {
                         emptyState
@@ -44,7 +43,6 @@ struct SleepView: View {
             .overlay {
                 if sleep.isLoading && sleep.nights.isEmpty { ProgressView() }
             }
-        }
     }
 
     // MARK: - Dernière nuit

@@ -25,7 +25,8 @@ final class HealthKitManager {
          HKQuantityType(.activeEnergyBurned),
          HKQuantityType(.heartRate),
          HKQuantityType(.bodyMass),
-         HKCategoryType(.sleepAnalysis)]
+         HKCategoryType(.sleepAnalysis),
+         HKQuantityType(.stepCount)]
     }
 
     func requestAuthorization() async throws {
@@ -67,6 +68,27 @@ final class HealthKitManager {
             sortDescriptors: [SortDescriptor(\.startDate)]
         )
         return try await descriptor.result(for: store)
+    }
+
+    /// Nombre de pas par jour (clé : début de journée).
+    func dailySteps(from start: Date, to end: Date) async throws -> [Date: Double] {
+        let calendar = Calendar.current
+        let anchor = calendar.startOfDay(for: start)
+        let predicate = HKQuery.predicateForSamples(withStart: anchor, end: end)
+        let descriptor = HKStatisticsCollectionQueryDescriptor(
+            predicate: .quantitySample(type: HKQuantityType(.stepCount), predicate: predicate),
+            options: .cumulativeSum,
+            anchorDate: anchor,
+            intervalComponents: DateComponents(day: 1)
+        )
+        let collection = try await descriptor.result(for: store)
+        var result: [Date: Double] = [:]
+        for stats in collection.statistics() {
+            if let value = stats.sumQuantity()?.doubleValue(for: .count()) {
+                result[calendar.startOfDay(for: stats.startDate)] = value
+            }
+        }
+        return result
     }
 
     func fetchRunningWorkouts(limit: Int = 1000) async throws -> [HKWorkout] {
