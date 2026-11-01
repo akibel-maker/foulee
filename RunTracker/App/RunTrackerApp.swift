@@ -7,6 +7,7 @@ struct RunTrackerApp: App {
         WindowGroup {
             RootView()
         }
-        .modelContainer(for: [Run.self, Goal.self, Habit.self, StretchSession.self, CustomStretchRoutine.self])
+        .modelContainer(for: [Run.self, Goal.self, Habit.self, StretchSession.self, CustomStretchRoutine.self,
+                             RehabScreening.self, RehabSession.self, RehabCheckIn.self])
     }
 }

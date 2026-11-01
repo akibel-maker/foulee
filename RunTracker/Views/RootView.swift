@@ -17,8 +17,8 @@ struct RootView: View {
             StatsView()
                 .tabItem { Label("Progression", systemImage: "chart.line.uptrend.xyaxis") }
                 .tag(AppTab.stats)
-            StretchHomeView()
-                .tabItem { Label("Étirements", systemImage: "figure.flexibility") }
+            MobilityView()
+                .tabItem { Label("Mobilité", systemImage: "figure.flexibility") }
                 .tag(AppTab.stretch)
             DailyView()
                 .tabItem { Label("Quotidien", systemImage: "checklist") }

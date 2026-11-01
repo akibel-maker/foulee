@@ -26,8 +26,7 @@ struct StretchHomeView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
+        ScrollView {
                 VStack(alignment: .leading, spacing: 26) {
                     header
                     if search.isEmpty {
@@ -66,7 +65,6 @@ struct StretchHomeView: View {
             .sheet(isPresented: $showStats) { StretchStatsView() }
             .sheet(isPresented: $showComposer) { RoutineComposerView() }
             .sheet(isPresented: $showNewRoutine) { CustomRoutineEditorView(routine: nil) }
-        }
     }
 
     // MARK: - En-tête
