@@ -17,7 +17,7 @@ enum HealthImporter {
         var imported = 0
         for workout in workouts {
             guard !knownIDs.contains(workout.uuid),
-                  workout.sourceRevision.source.bundleIdentifier != ownBundle else { continue }
+                  !isFromThisApp(workout.sourceRevision.source.bundleIdentifier, ownBundle: ownBundle) else { continue }
 
             let run = Run(name: Run.defaultName(for: workout.startDate),
                           startDate: workout.startDate,
@@ -38,5 +38,11 @@ enum HealthImporter {
         }
         try context.save()
         return imported
+    }
+
+    /// Les courses de Foulée (iPhone ou Watch, dont l'identifiant commence par celui de l'app) arrivent déjà directement.
+    private static func isFromThisApp(_ bundleID: String, ownBundle: String?) -> Bool {
+        guard let ownBundle else { return false }
+        return bundleID == ownBundle || bundleID.hasPrefix(ownBundle + ".")
     }
 }

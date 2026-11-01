@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct RootView: View {
+    @Environment(\.modelContext) private var context
     @State private var appState = AppState()
     @State private var tracker = RunTracker()
 
@@ -22,5 +23,6 @@ struct RootView: View {
         .environment(appState)
         .environment(tracker)
         .tint(.orange)
+        .task { WatchSyncService.shared.start(container: context.container) }
     }
 }

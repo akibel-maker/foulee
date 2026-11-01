@@ -147,6 +147,9 @@ struct RunView: View {
             .disabled(!tracker.hasLocationPermission)
             Toggle("Coach vocal", systemImage: "speaker.wave.2", isOn: $voiceCoach)
                 .font(.subheadline)
+            Label("Tu peux aussi lancer une course depuis l'app Foulée de ta Watch.", systemImage: "applewatch")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
 

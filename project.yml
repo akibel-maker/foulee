@@ -1,17 +1,21 @@
-# Projet Xcode généré avec XcodeGen : `brew install xcodegen && xcodegen`
+# Projet Xcode généré avec XcodeGen : `brew install xcodegen` puis `xcodegen`
 name: RunTracker
 options:
   bundleIdPrefix: com.akibel
   deploymentTarget:
     iOS: "17.0"
+    watchOS: "10.0"
   developmentLanguage: fr
 settings:
   base:
     SWIFT_VERSION: "5.0"
-    MARKETING_VERSION: "1.0"
-    CURRENT_PROJECT_VERSION: "1"
+    MARKETING_VERSION: "1.1"
+    CURRENT_PROJECT_VERSION: "2"
     CODE_SIGN_STYLE: Automatic
-    # Renseigne ton Team ID Apple ici (ou choisis l'équipe dans Xcode > Signing & Capabilities)
+    # Identifiant de l'app iPhone. Si Xcode le refuse (déjà pris), change-le ICI puis relance `xcodegen` :
+    # l'app Watch suit automatiquement (APP_BUNDLE_ID.watchkitapp).
+    APP_BUNDLE_ID: com.akibel.runtracker
+    # Ton Team ID Apple (Xcode > Settings > Accounts) : évite de re-choisir l'équipe après chaque `xcodegen`.
     DEVELOPMENT_TEAM: ""
 targets:
   RunTracker:
@@ -19,9 +23,17 @@ targets:
     platform: iOS
     sources:
       - RunTracker
+      - Shared
+    dependencies:
+      - target: FouleeWatch
+        embed: true
+        codeSign: true
+        copy:
+          destination: productsDirectory
+          subpath: $(CONTENTS_FOLDER_PATH)/Watch
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.akibel.runtracker
+        PRODUCT_BUNDLE_IDENTIFIER: $(APP_BUNDLE_ID)
         TARGETED_DEVICE_FAMILY: "1"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
@@ -43,3 +55,34 @@ targets:
         NSMotionUsageDescription: "Foulée utilise le podomètre pour mesurer ta cadence (pas par minute)."
         NSHealthShareUsageDescription: "Foulée lit tes courses, ta fréquence cardiaque et ton poids dans Santé pour compléter ton historique."
         NSHealthUpdateUsageDescription: "Foulée enregistre tes courses (distance, tracé, calories) dans Santé."
+
+  FouleeWatch:
+    type: application
+    platform: watchOS
+    sources:
+      - FouleeWatch
+      - Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(APP_BUNDLE_ID).watchkitapp
+        PRODUCT_NAME: FouleeWatch
+        TARGETED_DEVICE_FAMILY: "4"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        SKIP_INSTALL: YES
+    entitlements:
+      path: FouleeWatch/FouleeWatch.entitlements
+      properties:
+        com.apple.developer.healthkit: true
+        com.apple.developer.healthkit.access: []
+    info:
+      path: FouleeWatch/Info.plist
+      properties:
+        CFBundleDisplayName: Foulée
+        CFBundleDevelopmentRegion: fr
+        WKApplication: true
+        WKCompanionAppBundleIdentifier: $(APP_BUNDLE_ID)
+        WKBackgroundModes: [workout-processing]
+        NSLocationWhenInUseUsageDescription: "Foulée utilise le GPS de ta Watch pour enregistrer le tracé et le dénivelé de tes courses."
+        NSHealthShareUsageDescription: "Foulée lit ta fréquence cardiaque, tes calories et ta distance pendant la course."
+        NSHealthUpdateUsageDescription: "Foulée enregistre tes courses (tracé, cardio, calories) dans Santé."

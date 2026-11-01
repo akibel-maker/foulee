@@ -78,6 +78,8 @@ struct RunRow: View {
                     Text(run.name).font(.headline).lineLimit(1)
                     if run.source == "sante" {
                         Image(systemName: "heart.fill").font(.caption2).foregroundStyle(.pink)
+                    } else if run.source == "watch" {
+                        Image(systemName: "applewatch").font(.caption2).foregroundStyle(.secondary)
                     }
                 }
                 Text(Fmt.date(run.startDate)).font(.caption).foregroundStyle(.secondary)
