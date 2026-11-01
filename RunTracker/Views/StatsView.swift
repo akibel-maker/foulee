@@ -4,7 +4,11 @@ import Charts
 
 struct StatsView: View {
     @Query(sort: \Run.startDate) private var runs: [Run]
-    @AppStorage("weeklyGoalKm") private var weeklyGoalKm = 20.0
+    @Query(sort: \Goal.createdAt) private var goals: [Goal]
+    @Environment(\.modelContext) private var context
+    /// Ancien réglage « objectif hebdo » : converti une fois en objectif.
+    @AppStorage("weeklyGoalKm") private var legacyWeeklyGoalKm = 20.0
+    @AppStorage("didSeedGoals") private var didSeedGoals = false
     @State private var period: Period = .month
     @State private var showSettings = false
 
@@ -44,7 +48,8 @@ struct StatsView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
-                    weeklyGoal
+                    GoalsSection()
+                    if !runs.isEmpty { ActivityInsightsView(runs: runs) }
                     totalsCard
                     weeklyChart
                     if runs.filter({ $0.distance >= 1000 }).count >= 2 { paceTrend }
@@ -57,6 +62,21 @@ struct StatsView: View {
                 Button("Réglages", systemImage: "gearshape") { showSettings = true }
             }
             .sheet(isPresented: $showSettings) { SettingsView() }
+            .onAppear(perform: seedDefaultGoal)
+        }
+    }
+
+    /// Objectif « km par semaine » utilisé comme repère sur le graphique hebdomadaire.
+    private var weeklyGoalKm: Double {
+        goals.first { $0.kind == .distance && $0.period == .week }?.target ?? 0
+    }
+
+    private func seedDefaultGoal() {
+        guard !didSeedGoals else { return }
+        didSeedGoals = true
+        if goals.isEmpty, legacyWeeklyGoalKm > 0 {
+            context.insert(Goal(kind: .distance, period: .week, target: legacyWeeklyGoalKm))
+            try? context.save()
         }
     }
 
@@ -90,46 +110,7 @@ struct StatsView: View {
         }
     }
 
-    /// Nombre de semaines consécutives avec au moins une course.
-    private var weekStreak: Int {
-        guard let thisWeek = calendar.dateInterval(of: .weekOfYear, for: .now)?.start else { return 0 }
-        let weeksWithRuns = Set(runs.compactMap { calendar.dateInterval(of: .weekOfYear, for: $0.startDate)?.start })
-        var week = weeksWithRuns.contains(thisWeek) ? thisWeek : calendar.date(byAdding: .weekOfYear, value: -1, to: thisWeek)!
-        var streak = 0
-        while weeksWithRuns.contains(week) {
-            streak += 1
-            week = calendar.date(byAdding: .weekOfYear, value: -1, to: week)!
-        }
-        return streak
-    }
-
     // MARK: - Sections
-
-    private var weeklyGoal: some View {
-        let km = totals(in: interval(for: .week)).distance / 1000
-        let progress = weeklyGoalKm > 0 ? min(km / weeklyGoalKm, 1) : 0
-        return HStack(spacing: 20) {
-            ZStack {
-                Circle().stroke(.orange.opacity(0.15), lineWidth: 14)
-                Circle().trim(from: 0, to: progress)
-                    .stroke(.orange, style: StrokeStyle(lineWidth: 14, lineCap: .round))
-                    .rotationEffect(.degrees(-90))
-                Text("\(Int(progress * 100)) %").font(.headline.monospacedDigit())
-            }
-            .frame(width: 96, height: 96)
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Objectif de la semaine").font(.headline)
-                Text("\(Fmt.km(km * 1000, decimals: 1)) / \(Int(weeklyGoalKm)) km")
-                    .font(.title3.weight(.bold).monospacedDigit())
-                Label(weekStreak > 0 ? "\(weekStreak) semaine\(weekStreak > 1 ? "s" : "") d'affilée" : "Pas encore de série",
-                      systemImage: "flame.fill")
-                    .font(.subheadline)
-                    .foregroundStyle(weekStreak > 0 ? .orange : .secondary)
-            }
-            Spacer(minLength: 0)
-        }
-        .card()
-    }
 
     private var totalsCard: some View {
         let current = totals(in: interval(for: period))
@@ -256,13 +237,5 @@ struct StatsView: View {
             }
         }
         .font(.subheadline.monospacedDigit())
-    }
-}
-
-private extension View {
-    func card() -> some View {
-        padding()
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.background.secondary, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
     }
 }

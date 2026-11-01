@@ -40,6 +40,22 @@ enum Fmt {
         d.formatted(.dateTime.month(.wide).year().locale(french)).capitalized
     }
 
+    /// "7 h 12" (durée de sommeil)
+    static func sleep(_ t: TimeInterval) -> String {
+        let total = max(0, Int((t / 60).rounded()))
+        return String(format: "%d h %02d", total / 60, total % 60)
+    }
+
+    /// "23:41"
+    static func clock(_ d: Date) -> String {
+        d.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits).locale(french))
+    }
+
+    /// "dim. 1 nov."
+    static func dayShort(_ d: Date) -> String {
+        d.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated).locale(french))
+    }
+
     // MARK: - Versions parlées (coach vocal)
 
     static func spokenDuration(_ t: TimeInterval) -> String {

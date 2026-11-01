@@ -24,7 +24,8 @@ final class HealthKitManager {
          HKQuantityType(.distanceWalkingRunning),
          HKQuantityType(.activeEnergyBurned),
          HKQuantityType(.heartRate),
-         HKQuantityType(.bodyMass)]
+         HKQuantityType(.bodyMass),
+         HKCategoryType(.sleepAnalysis)]
     }
 
     func requestAuthorization() async throws {
@@ -56,6 +57,16 @@ final class HealthKitManager {
         )
         let samples = try? await descriptor.result(for: store)
         return samples?.first?.quantity.doubleValue(for: .gramUnit(with: .kilo))
+    }
+
+    /// Échantillons de sommeil (Apple Watch, iPhone, autres apps) sur une période.
+    func sleepSamples(from start: Date, to end: Date) async throws -> [HKCategorySample] {
+        let predicate = HKQuery.predicateForSamples(withStart: start, end: end)
+        let descriptor = HKSampleQueryDescriptor(
+            predicates: [.categorySample(type: HKCategoryType(.sleepAnalysis), predicate: predicate)],
+            sortDescriptors: [SortDescriptor(\.startDate)]
+        )
+        return try await descriptor.result(for: store)
     }
 
     func fetchRunningWorkouts(limit: Int = 1000) async throws -> [HKWorkout] {

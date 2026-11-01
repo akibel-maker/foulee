@@ -6,7 +6,7 @@ struct SettingsView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
 
-    @AppStorage("weeklyGoalKm") private var weeklyGoalKm = 20.0
+    @AppStorage("sleepGoalHours") private var sleepGoalHours = 8.0
     @AppStorage("weightKg") private var weightKg = 70.0
     @AppStorage("voiceCoach") private var voiceCoach = true
     @AppStorage("saveToHealth") private var saveToHealth = true
@@ -17,8 +17,12 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Objectif") {
-                    Stepper("Objectif hebdo : \(Int(weeklyGoalKm)) km", value: $weeklyGoalKm, in: 0...200, step: 5)
+                Section {
+                    Stepper("Objectif de sommeil : \(Fmt.sleep(sleepGoalHours * 3600))", value: $sleepGoalHours, in: 5...11, step: 0.25)
+                } header: {
+                    Text("Objectifs")
+                } footer: {
+                    Text("Tes objectifs de course se créent dans l'onglet Progression (bouton +).")
                 }
                 Section {
                     Stepper("Poids : \(Int(weightKg)) kg", value: $weightKg, in: 30...200)

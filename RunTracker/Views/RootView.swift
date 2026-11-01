@@ -4,6 +4,7 @@ struct RootView: View {
     @Environment(\.modelContext) private var context
     @State private var appState = AppState()
     @State private var tracker = RunTracker()
+    @State private var sleep = SleepStore()
 
     var body: some View {
         TabView(selection: $appState.selectedTab) {
@@ -19,9 +20,13 @@ struct RootView: View {
             StatsView()
                 .tabItem { Label("Progression", systemImage: "chart.line.uptrend.xyaxis") }
                 .tag(AppTab.stats)
+            SleepView()
+                .tabItem { Label("Sommeil", systemImage: "bed.double") }
+                .tag(AppTab.sleep)
         }
         .environment(appState)
         .environment(tracker)
+        .environment(sleep)
         .tint(.orange)
         .task { WatchSyncService.shared.start(container: context.container) }
     }
