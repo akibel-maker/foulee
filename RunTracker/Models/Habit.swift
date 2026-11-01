@@ -27,10 +27,17 @@ enum HabitSchedule: String, CaseIterable, Identifiable {
 }
 
 enum HabitAutoSource: String, CaseIterable, Identifiable {
-    case none, steps
+    case none, steps, stretching
 
     var id: Self { self }
-    var label: String { self == .none ? "Saisie manuelle" : "Pas (app Santé)" }
+
+    var label: String {
+        switch self {
+        case .none: "Saisie manuelle"
+        case .steps: "Pas (app Santé)"
+        case .stretching: "Minutes d'étirements (Foulée)"
+        }
+    }
 }
 
 enum HabitColor: String, CaseIterable, Identifiable {
@@ -163,7 +170,8 @@ struct HabitPreset: Identifiable {
         HabitPreset(name: "Boire de l'eau", emoji: "💧", color: .blue, kind: .count, target: 8, unit: "verres"),
         HabitPreset(name: "Méditer", emoji: "🧘", color: .purple),
         HabitPreset(name: "Lire", emoji: "📖", color: .orange, kind: .count, target: 20, unit: "min"),
-        HabitPreset(name: "Étirements", emoji: "🤸", color: .teal),
+        HabitPreset(name: "Étirements", emoji: "🤸", color: .teal, kind: .count, target: 5, unit: "min",
+                    autoSource: .stretching),
         HabitPreset(name: "10 000 pas", emoji: "👟", color: .green, kind: .count, target: 10_000, unit: "pas",
                     autoSource: .steps),
         HabitPreset(name: "Renforcement", emoji: "💪", color: .red, schedule: .timesPerWeek, timesPerWeek: 3),

@@ -2,7 +2,7 @@ import Foundation
 import Observation
 
 enum AppTab: Hashable {
-    case run, routes, history, stats, daily
+    case run, history, stats, stretch, daily
 }
 
 /// État partagé entre les onglets (onglet actif, itinéraire choisi pour la prochaine course).

@@ -168,6 +168,19 @@ final class HealthKitManager {
 
     // MARK: - Écriture
 
+    /// Enregistre une séance d'étirements dans Santé (activité « Souplesse »).
+    func saveFlexibilityWorkout(start: Date, end: Date) async throws {
+        guard isAvailable, end > start else { return }
+        try await requestAuthorization()
+        let configuration = HKWorkoutConfiguration()
+        configuration.activityType = .flexibility
+        configuration.locationType = .indoor
+        let builder = HKWorkoutBuilder(healthStore: store, configuration: configuration, device: .local())
+        try await builder.beginCollection(at: start)
+        try await builder.endCollection(at: end)
+        _ = try await builder.finishWorkout()
+    }
+
     /// Enregistre la course dans Santé (avec son tracé). Renvoie l'identifiant de l'entraînement.
     func saveWorkout(run: Run, locations: [CLLocation]) async throws -> UUID? {
         guard isAvailable else { return nil }

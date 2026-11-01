@@ -17,6 +17,7 @@ struct RunView: View {
     @State private var showStopConfirmation = false
     @State private var showTooShortAlert = false
     @State private var finishedRun: Run?
+    @State private var showRoutes = false
 
     var body: some View {
         NavigationStack {
@@ -37,6 +38,11 @@ struct RunView: View {
                     }
                 }
                 ToolbarItem(placement: .topBarLeading) { gpsIndicator }
+                if !tracker.isActive {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Itinéraires", systemImage: "map") { showRoutes = true }
+                    }
+                }
             }
             .onAppear { tracker.startPreview() }
             .confirmationDialog("Terminer la course ?", isPresented: $showStopConfirmation, titleVisibility: .visible) {
@@ -44,6 +50,7 @@ struct RunView: View {
                 Button("Supprimer sans enregistrer", role: .destructive) { tracker.discard() }
                 Button("Continuer", role: .cancel) {}
             }
+            .sheet(isPresented: $showRoutes) { RoutesView() }
             .alert("Course trop courte", isPresented: $showTooShortAlert) {
                 Button("OK", role: .cancel) {}
             } message: {

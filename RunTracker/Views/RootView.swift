@@ -11,15 +11,15 @@ struct RootView: View {
             RunView()
                 .tabItem { Label("Courir", systemImage: "figure.run") }
                 .tag(AppTab.run)
-            RoutesView()
-                .tabItem { Label("Itinéraires", systemImage: "map") }
-                .tag(AppTab.routes)
             HistoryView()
                 .tabItem { Label("Historique", systemImage: "list.bullet") }
                 .tag(AppTab.history)
             StatsView()
                 .tabItem { Label("Progression", systemImage: "chart.line.uptrend.xyaxis") }
                 .tag(AppTab.stats)
+            StretchHomeView()
+                .tabItem { Label("Étirements", systemImage: "figure.flexibility") }
+                .tag(AppTab.stretch)
             DailyView()
                 .tabItem { Label("Quotidien", systemImage: "checklist") }
                 .tag(AppTab.daily)

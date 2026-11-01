@@ -4,6 +4,7 @@ import SwiftData
 struct HabitsView: View {
     @Environment(\.modelContext) private var context
     @Query(sort: \Habit.sortOrder) private var allHabits: [Habit]
+    @Query private var stretchSessions: [StretchSession]
     @State private var selectedDay = Calendar.current.startOfDay(for: .now)
     @State private var steps = StepsStore()
     @State private var showEditor = false
@@ -14,9 +15,15 @@ struct HabitsView: View {
     private var usesSteps: Bool { habits.contains { $0.autoSource == .steps } }
 
     private func valueProvider(for habit: Habit) -> HabitLogic.ValueProvider {
-        if habit.autoSource == .steps {
+        switch habit.autoSource {
+        case .steps:
             let store = steps
             return { store.steps(on: $0) }
+        case .stretching:
+            let sessions = stretchSessions
+            return { StretchStatsCalculator.minutes(on: $0, sessions: sessions) }
+        case .none:
+            break
         }
         return { habit.loggedValue(on: $0) }
     }
@@ -244,7 +251,7 @@ struct HabitRow: View {
 
     @ViewBuilder
     private var control: some View {
-        if habit.autoSource == .steps {
+        if habit.autoSource != .none {
             progressRing
         } else if habit.kind == .check {
             Button {

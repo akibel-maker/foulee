@@ -110,6 +110,9 @@ struct HabitEditorView: View {
                             if source == .steps {
                                 unit = "pas"
                                 if target < 1000 { target = 10_000 }
+                            } else if source == .stretching {
+                                unit = "min"
+                                if target > 120 || target < 1 { target = 5 }
                             }
                         }
                         Stepper(value: $target, in: isSteps ? 500...50_000 : 1...1000, step: isSteps ? 500 : 1) {
@@ -121,7 +124,7 @@ struct HabitEditorView: View {
                                     .monospacedDigit()
                             }
                         }
-                        if !isSteps {
+                        if autoSource == .none {
                             TextField("Unité (verres, min, pages…)", text: $unit)
                         }
                     }

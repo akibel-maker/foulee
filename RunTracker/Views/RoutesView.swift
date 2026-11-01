@@ -7,6 +7,7 @@ import Charts
 struct RoutesView: View {
     @Environment(AppState.self) private var appState
     @Environment(RunTracker.self) private var tracker
+    @Environment(\.dismiss) private var dismiss
     @Query(sort: \Run.startDate, order: .reverse) private var runs: [Run]
 
     @State private var suggester = RouteSuggester()
@@ -35,6 +36,9 @@ struct RoutesView: View {
             .navigationTitle("Itinéraires")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear { tracker.startPreview() }
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button("Fermer") { dismiss() } }
+            }
         }
     }
 
@@ -109,6 +113,7 @@ struct RoutesView: View {
                     Button {
                         appState.plannedRoute = selected
                         appState.selectedTab = .run
+                        dismiss()
                     } label: {
                         Label("Courir cet itinéraire", systemImage: "figure.run")
                             .frame(maxWidth: .infinity)
